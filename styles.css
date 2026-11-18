@@ -1,3 +1,4 @@
+html.prejoin #screen-landing { display: none !important; }
 :root {
   --bg: #fff4e8;
   --paper: #fffdf8;
@@ -45,9 +46,9 @@ button {
 }
 .btn { width: 100%; }
 .btn-primary { background: var(--primary); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+.btn-primary:hover:not(:disabled), .btn-primary:focus-visible:not(:disabled), .btn-primary:active:not(:disabled) { background: var(--primary-dark); }
 .btn-accent { background: var(--accent); color: #fff; }
-.btn-accent:hover:not(:disabled) { background: var(--accent-dark); }
+.btn-accent:hover:not(:disabled), .btn-accent:focus-visible:not(:disabled), .btn-accent:active:not(:disabled) { background: var(--accent-dark); }
 .btn-ghost { background: #fff; color: var(--ink); border: 3px solid var(--line); }
 .btn-good { background: var(--good); color: #fff; }
 .btn-soft { background: #f3e0c8; color: var(--ink); }
@@ -126,7 +127,7 @@ button:disabled { opacity: 0.45; cursor: default; }
   cursor: pointer;
   font-family: inherit;
 }
-.num-btn:hover, .num-btn:focus { border-color: var(--primary); background: #ffe8d1; }
+.num-btn:hover, .num-btn:focus, .num-btn:active { border-color: var(--primary); background: #ffe8d1; }
 #screen-numbers .btn-row { flex: 0 0 auto; margin-top: 10px; }
 
 .student-display, .room-code-big, .code-input {
@@ -272,13 +273,13 @@ main.play, .broadcast-play {
 .item .halo { position: absolute; inset: 4%; border-radius: 50%; opacity: 0; }
 .item.in-loop .halo { opacity: 0.38; }
 svg.overlay { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; touch-action: none; }
-.loop-tools, #loop-tools {
+.loop-tools, #loop-tools, #demo-loop-tools {
   position: absolute;
   z-index: 3;
   display: flex;
   transform: translate(-50%, -120%);
 }
-.loop-tools button, #loop-tools button {
+.loop-tools button, #loop-tools button, #demo-loop-tools button {
   min-height: 40px;
   padding: 0 12px;
   font-size: 16px;
@@ -461,7 +462,7 @@ svg.overlay { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 
   margin: 8px 0 12px;
   width: 100%;
 }
-.console-controls .btn { width: auto; min-width: 140px; }
+.console-controls .btn { width: auto; min-width: 120px; min-height: 48px; font-size: 18px; }
 .section-title {
   width: 100%;
   font-size: 1.15rem;
@@ -492,7 +493,7 @@ svg.overlay { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 
   color: var(--ink);
   font-family: inherit;
 }
-.student-card:hover { border-color: var(--primary); }
+.student-card:hover, .student-card:focus, .student-card:active { border-color: var(--primary); }
 .student-card.online { border-color: #86c7a3; }
 .student-card.ok { background: var(--good-bg); }
 .student-card.bad { background: var(--bad-bg); }
@@ -541,7 +542,7 @@ svg.overlay { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 
   .num-grid { overflow-y: auto; touch-action: pan-y; }
 }
 
-#screen-play.active, #screen-broadcast.active, #screen-inspect.active {
+#screen-play.active, #screen-broadcast.active, #screen-inspect.active, #screen-demo.active {
   height: 100dvh;
   overflow: hidden;
   align-items: stretch;
@@ -552,7 +553,7 @@ svg.overlay { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 
   align-items: stretch;
   touch-action: pan-y;
 }
-body.mode-play, body.mode-broadcast, body.mode-inspect {
+body.mode-play, body.mode-broadcast, body.mode-inspect, body.mode-demo {
   height: 100dvh;
   overflow: hidden;
 }
@@ -565,4 +566,174 @@ body.mode-play, body.mode-broadcast, body.mode-inspect {
   font-weight: 800;
   color: var(--good);
   margin-top: 8px;
+}
+
+.demo-toolbar { gap: 8px; }
+.demo-toolbar .btn { width: auto; min-width: 120px; min-height: 48px; font-size: 18px; }
+@media (max-width: 900px) {
+  .demo-toolbar { width: 100%; justify-content: flex-end; }
+  .demo-toolbar .btn { flex: 1 1 auto; }
+}
+
+/* ---- QR / class entry (projectable) ---- */
+#screen-entry.active {
+  height: 100dvh;
+  overflow: hidden;
+  align-items: stretch;
+  padding: calc(12px + var(--safe)) 18px calc(12px + var(--safeb));
+}
+.entry-shell {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 3px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 14px 20px 12px;
+}
+.entry-instruction {
+  font-size: clamp(20px, 2.8vw, 36px);
+  color: var(--ink);
+  font-weight: 800;
+  line-height: 1.35;
+}
+.entry-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 20px;
+  align-items: center;
+}
+.entry-qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+}
+#entry-qr-canvas {
+  width: min(72vmin, 100%);
+  max-height: min(72vmin, 100%);
+  height: auto;
+  aspect-ratio: 1;
+  background: #fff;
+  padding: 10px;
+  border-radius: 16px;
+  border: 6px solid var(--ink);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.entry-qr-fallback {
+  margin: 12px 8px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--muted);
+  text-align: center;
+}
+.entry-meta { min-width: 0; text-align: center; }
+.entry-label {
+  margin: 0;
+  font-size: clamp(16px, 1.8vw, 22px);
+  font-weight: 800;
+  color: var(--muted);
+}
+.entry-code {
+  font-size: clamp(4rem, 12vw, 9rem);
+  min-height: 0;
+  padding: 10px 12px;
+  margin: 8px 0 18px;
+  letter-spacing: 0.18em;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.entry-url {
+  font-size: clamp(16px, 2.1vw, 28px);
+  font-weight: 800;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  text-align: center;
+  user-select: text;
+  -webkit-user-select: text;
+  line-height: 1.35;
+  color: var(--ink);
+  background: #fff;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+.entry-actions { margin-top: 12px; flex-shrink: 0; }
+@media (max-width: 900px), (max-aspect-ratio: 4/5) {
+  .entry-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+  #entry-qr-canvas {
+    width: min(56vmin, 100%);
+    max-height: min(56vmin, 100%);
+  }
+  .entry-code { font-size: clamp(3rem, 14vw, 6rem); margin: 6px 0 10px; }
+}
+
+/* ---- Teacher demo: large board on computer / projector ---- */
+#screen-demo.active main.play {
+  grid-template-columns: minmax(0, 1.85fr) minmax(280px, 0.62fr);
+}
+#screen-demo .board { min-width: 0; }
+#screen-demo .demo-toolbar .btn { min-height: 48px; }
+@media (max-width: 900px) {
+  #screen-demo.active main.play {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(46vh, 1fr) auto;
+  }
+  #screen-demo .panel { max-height: 42dvh; }
+  #screen-demo .board-col { min-height: 46vh; }
+}
+body.demo-project #screen-demo.active main.play {
+  grid-template-columns: minmax(0, 2.4fr) minmax(250px, 0.48fr);
+}
+body.demo-project #demo-hint,
+body.demo-project #screen-demo .mini-hint { display: none !important; }
+body.demo-project #screen-demo .play-bar .sync-bar { display: none; }
+body.demo-project #screen-demo .blank,
+body.demo-project #screen-demo .sentence-bar .blank,
+body.demo-project #screen-demo .horizontal .blank {
+  min-height: 70px;
+  font-size: clamp(32px, 3.2vw, 48px);
+}
+body.demo-project #screen-demo .op,
+body.demo-project #screen-demo .eqspan,
+body.demo-project #screen-demo .ellipsis {
+  font-size: clamp(32px, 3.2vw, 48px);
+}
+body.demo-project #screen-demo .panel h2 { font-size: clamp(24px, 2.6vw, 36px); }
+body.demo-project #screen-demo .group-live { font-size: clamp(20px, 2.2vw, 28px); }
+body.demo-project #screen-demo .sentence-bar { font-size: clamp(22px, 2.4vw, 32px); }
+body.demo-project #screen-demo .part-title { font-size: 22px; }
+body.demo-project #screen-demo .numkeys button { min-height: 46px; font-size: 20px; }
+body.demo-project #demo-items .item svg { width: min(100%, 200px); }
+body.demo-project .demo-toolbar .btn {
+  min-height: 56px;
+  font-size: 22px;
+  min-width: 140px;
+}
+@media (max-width: 900px) {
+  body.demo-project #screen-demo.active main.play {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(52vh, 1fr) auto;
+  }
+  body.demo-project #screen-demo .panel { max-height: 38dvh; }
+  body.demo-project #screen-demo .board-col { min-height: 52vh; }
+}
+
+/* Wide teacher console: keep actions easy to click */
+@media (min-width: 1200px) {
+  .console-controls { gap: 10px; }
+  .console-controls .btn { min-height: 52px; font-size: 19px; padding: 12px 18px; }
+  .progress-list { gap: 6px; }
 }
